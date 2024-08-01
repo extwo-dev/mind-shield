@@ -2,22 +2,28 @@
 
 import React from "react";
 
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 
+import { Eye, EyeOff } from "lucide-react";
+
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Form } from "@/components/ui/form";
-import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  SignUpFormData,
-  signUpFormSchema,
-} from "../_schema/sign-up-form-schema";
-import { PersonalInformation } from "./form-steps/personal-information";
-import { useMultistepForm } from "@/hooks/useMultistepForm";
-import { HomeInformation } from "./form-steps/home-information";
-import { MilitaryInformation } from "./form-steps/military-information";
-import { AccountInformation } from "./form-steps/account-information";
+  Form,
+  FormItem,
+  FormField,
+  FormLabel,
+  FormControl,
+  FormMessage,
+} from "@/components/ui/form";
+
+import { zodResolver } from "@hookform/resolvers/zod";
+import { SignUpFormData, signUpFormSchema } from "../_schema/sign-up-schema";
 
 type FormProps = {
+  error: string;
+  pending: boolean;
   handler: (v: SignUpFormData) => void;
 };
 
@@ -26,33 +32,142 @@ export const SignUpForm: React.FC<FormProps> = (props) => {
     resolver: zodResolver(signUpFormSchema),
   });
 
-  const formStepComponents: React.ReactElement[] = [
-    <PersonalInformation control={form.control} />,
-    <HomeInformation control={form.control} />,
-    <MilitaryInformation control={form.control} />,
-    <AccountInformation control={form.control} />,
-  ];
-
-  const { step, component, next, prev, goto } =
-    useMultistepForm(formStepComponents);
+  const [showPassword, setShowPassword] = useState<boolean>(false);
 
   return (
     <Form {...form}>
       <form
         onSubmit={form.handleSubmit(props.handler)}
-        className="flex flex-col gap-4"
+        className="grid gap-4 grid-cols-2 grid-rows-4"
       >
-        {component}
+        <FormField
+          name="lastName"
+          control={form.control}
+          render={({ field }) => {
+            return (
+              <FormItem>
+                <FormLabel>Фамилия</FormLabel>
+                <FormControl>
+                  <Input type="text" placeholder="Фамилия" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            );
+          }}
+        />
 
-        {step == formStepComponents.length - 1 ? (
-          <Button type="submit" size="lg">
-            Завершить
-          </Button>
-        ) : (
-          <Button type="button" size="lg" onClick={next}>
-            Далее
-          </Button>
+        <FormField
+          name="name"
+          control={form.control}
+          render={({ field }) => {
+            return (
+              <FormItem>
+                <FormLabel>Имя</FormLabel>
+                <FormControl>
+                  <Input type="text" placeholder="Имя" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            );
+          }}
+        />
+
+        <FormField
+          name="surname"
+          control={form.control}
+          render={({ field }) => {
+            return (
+              <FormItem>
+                <FormLabel>Отчество</FormLabel>
+                <FormControl>
+                  <Input type="text" placeholder="Отчество" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            );
+          }}
+        />
+
+        <FormField
+          name="dateOfBirth"
+          control={form.control}
+          render={({ field }) => {
+            return (
+              <FormItem>
+                <FormLabel>Дата рождения</FormLabel>
+                <FormControl>
+                  <Input type="text" placeholder="ДД.ММ.ГГГГ" {...field} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            );
+          }}
+        />
+
+        <FormField
+          name="phoneNumber"
+          control={form.control}
+          render={({ field }) => {
+            return (
+              <FormItem className="col-span-2">
+                <FormLabel>Номер телефона</FormLabel>
+                <FormControl>
+                  <Input
+                    type="text"
+                    placeholder="+375 (XX) XXX-XX-XX"
+                    {...field}
+                  />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            );
+          }}
+        />
+
+        <FormField
+          name="password"
+          control={form.control}
+          render={({ field }) => {
+            return (
+              <FormItem className="col-span-2">
+                <FormLabel>Пароль</FormLabel>
+                <FormControl>
+                  <div className="flex flex-row items-center justify-between gap-1">
+                    <Input
+                      type={showPassword ? "text" : "password"}
+                      placeholder="• • • • • • • • • • • •"
+                      {...field}
+                    />
+                    <Button
+                      size="icon"
+                      type="button"
+                      variant="outline"
+                      onClick={() => setShowPassword(!showPassword)}
+                    >
+                      {showPassword ? <EyeOff /> : <Eye />}
+                    </Button>
+                  </div>
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            );
+          }}
+        />
+
+        {props.error.length > 0 && (
+          <div className="p-2 rounded-md text-destructive col-span-2">
+            {props.error}
+          </div>
         )}
+
+        <Button
+          type="submit"
+          size="lg"
+          disabled={props.pending}
+          className="col-span-2"
+        >
+          {props.pending ? "Загрузка..." : "Отправить"}
+        </Button>
       </form>
     </Form>
   );
