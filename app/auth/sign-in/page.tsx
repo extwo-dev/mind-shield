@@ -13,17 +13,21 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { trpc } from "@/utils/trpc";
-import { useState } from "react";
+import { useToast } from "@/components/ui/use-toast";
 import { createSession } from "@/utils/auth/session";
 
 const SignInPage: NextPage = () => {
+  const { toast } = useToast();
   const mutation = trpc.auth.signIn.useMutation();
-  const [authError, setAuthError] = useState<string>("");
 
   const formHandler = (values: SignInFormData) => {
     mutation.mutate(values, {
       onError(error) {
-        setAuthError(error.message);
+        toast({
+          title: "Ошибка",
+          variant: "destructive",
+          description: error.message,
+        });
       },
 
       onSuccess(data) {
@@ -31,14 +35,19 @@ const SignInPage: NextPage = () => {
         const userData = JSON.stringify(data.user);
 
         localStorage.setItem(userId, userData);
-
         createSession(data.user.id, "/onboarding/dashboard");
+
+        toast({
+          title: "Поздравляем!",
+          variant: "success",
+          description: "Вы успешно вошли в аккаунт",
+        });
       },
     });
   };
 
   return (
-    <Card className="max-w-xl">
+    <Card className="max-w-xl border border-zinc-400">
       <CardHeader>
         <CardTitle className="scroll-m-20 text-2xl font-semibold tracking-tight">
           Вход
@@ -49,11 +58,7 @@ const SignInPage: NextPage = () => {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <SignInForm
-          error={authError}
-          handler={formHandler}
-          pending={mutation.isPending}
-        />
+        <SignInForm handler={formHandler} pending={mutation.isPending} />
       </CardContent>
       <CardFooter className="flex items-center justify-center">
         <span className="flex flex-row items-center gap-3 self-center">

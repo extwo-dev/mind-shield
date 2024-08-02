@@ -15,15 +15,20 @@ import {
 } from "@/components/ui/card";
 import { trpc } from "@/utils/trpc";
 import { createSession } from "@/utils/auth/session";
+import { useToast } from "@/components/ui/use-toast";
 
 const SignUpPage: NextPage = () => {
+  const { toast } = useToast();
   const mutation = trpc.auth.signUp.useMutation();
-  const [signUpError, setSignUpError] = useState<string>("");
 
   const formHandler = (values: SignUpFormData) => {
     mutation.mutate(values, {
       onError: (error) => {
-        setSignUpError(error.message);
+        toast({
+          title: "Ошибка",
+          variant: "destructive",
+          description: error.message,
+        });
       },
 
       onSuccess: (data) => {
@@ -32,12 +37,17 @@ const SignUpPage: NextPage = () => {
         localStorage.setItem(userId, userData);
 
         createSession(data.user.id, "/onboarding/starter");
+
+        toast({
+          title: "Поздравляем!",
+          description: "Вы успешно создали аккаунт",
+        });
       },
     });
   };
 
   return (
-    <Card className="max-w-xl">
+    <Card className="max-w-xl border border-zinc-400">
       <CardHeader>
         <CardTitle className="scroll-m-20 text-2xl font-semibold tracking-tight">
           Регистрация
@@ -48,11 +58,7 @@ const SignUpPage: NextPage = () => {
         </CardDescription>
       </CardHeader>
       <CardContent>
-        <SignUpForm
-          error={signUpError}
-          handler={formHandler}
-          pending={mutation.isPending}
-        />
+        <SignUpForm handler={formHandler} pending={mutation.isPending} />
       </CardContent>
       <CardFooter className="flex items-center justify-center">
         <span className="flex flex-row items-center gap-3 self-center">

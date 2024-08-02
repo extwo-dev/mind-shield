@@ -3,8 +3,9 @@
 import "@/app/globals.css";
 
 import React from "react";
-import { Inter } from "next/font/google";
 import { trpc } from "@/utils/trpc";
+import { Inter } from "next/font/google";
+import { Toaster } from "@/components/ui/toaster";
 
 type LayoutProps = {
   children: React.ReactNode;
@@ -19,7 +20,10 @@ const DefaultLayout: React.FC<LayoutProps> = (props) => {
 
   return (
     <html lang="en">
-      <body className={fontFace.className}>{children}</body>
+      <body className={fontFace.className}>
+        <main>{children}</main>
+        <Toaster />
+      </body>
     </html>
   );
 };

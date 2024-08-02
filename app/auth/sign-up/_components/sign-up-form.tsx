@@ -7,13 +7,11 @@ import { useForm } from "react-hook-form";
 import { Form } from "@/components/ui/form";
 import { Button } from "@/components/ui/button";
 
-import { FormError } from "@/components/form-error";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { SignUpFormFields } from "./sign-up-form-fields";
 import { SignUpFormData, signUpFormSchema } from "../_schema/sign-up-schema";
 
 type FormProps = {
-  error: string;
   pending: boolean;
   handler: (v: SignUpFormData) => void;
 };
@@ -30,9 +28,6 @@ export const SignUpForm: React.FC<FormProps> = (props) => {
         className="grid gap-4 grid-cols-2 grid-rows-4"
       >
         <SignUpFormFields control={form.control} />
-
-        {props.error.length > 0 && <FormError message={props.error} />}
-
         <Button
           size="lg"
           type="submit"
